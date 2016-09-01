@@ -426,10 +426,14 @@ namespace cloudscribe.Web.Pagination
                     kvp => (object)kvp.Value,
                     StringComparer.OrdinalIgnoreCase);
 
+            
+
             if (!routeValues.ContainsKey(PageNumberParam))
             {
                 routeValues.Add(PageNumberParam, pageNumber);
             }
+
+            AddCurrentQueryString(routeValues);
 
             if (Route != null)
             {
@@ -440,10 +444,40 @@ namespace cloudscribe.Web.Pagination
                 return urlHelper.Action(Action, Controller, routeValues);
                 
             }
+            else
+            {
+                // current Action
+                return urlHelper.Action(Action, routeValues);
+            }
            
-            return pageNumber.ToString();
+            //return pageNumber.ToString();
         }
-
-
+        /// <summary>
+        /// add Current Query item to routeValues
+        /// </summary>
+        /// <param name="current">current routeValues</param>
+        private void AddCurrentQueryString(Dictionary<string,object> current) {
+            foreach(var item in urlHelper.ActionContext.HttpContext.Request.Query)
+            {
+                if(!current.ContainsKey(item.Key))
+                {
+                    current.Add(item.Key, item.Value);
+                }
+            }
+        }
+        /// <summary>
+        /// add Current  routeValues to routeValues  --- not usefull
+        /// </summary>
+        /// <param name="current">current routeValues</param>
+        private void AddCurrentRouteValue(Dictionary<string,object> current)
+        {
+            foreach (var item in urlHelper.ActionContext.RouteData.Values)
+            {
+                if (!current.ContainsKey(item.Key))
+                {
+                    current.Add(item.Key, item.Value);
+                }
+            }
+        }
     }
 }
